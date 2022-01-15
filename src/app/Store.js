@@ -56,7 +56,7 @@ class ApiEntity {
 
 class Store {
   constructor() {
-    this.api = new Api({baseUrl: 'http://localhost:5678'})
+    this.api = new Api({baseUrl: 'http://localhost:5679'})
   }
 
   user = uid => (new ApiEntity({key: 'users', api: this.api})).select({selector: uid})
