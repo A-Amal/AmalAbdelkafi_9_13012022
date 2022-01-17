@@ -18,9 +18,9 @@ const row = (bill) => {
     </tr>
     `)
   }
-
+// fix bug 1!: organization of dates in ascending order
 const rows = (data) => {
-  return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
+  return (data && data.length) ? data.sort((a, b) => new Date(b.date) - new Date(a.date)).map(bill => row(bill)).join("") : ""
 }
 
 export default ({ data: bills, loading, error }) => {
