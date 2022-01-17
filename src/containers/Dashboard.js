@@ -137,15 +137,19 @@ export default class {
       $(`#status-bills-container${this.index}`)
         .html(cards(filteredBills(bills, getStatus(this.index))))
       this.counter ++
-    } else {
+    }else {
       $(`#arrow-icon${this.index}`).css({ transform: 'rotate(90deg)'})
       $(`#status-bills-container${this.index}`)
         .html("")
       this.counter ++
     }
-
+    //modification: add #status-bills-container${index} to be able to open several tickets
     bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
+      //$(`#open-bill${bill.id}`).on("click", (e) => this.handleEditTicket(e, bill, bills))
+      $(`#status-bills-container${index} #open-bill${bill.id}`).click((e) =>
+      this.handleEditTicket(e, bill, bills)
+    );
+    
     })
 
     return bills
