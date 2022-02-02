@@ -4,15 +4,15 @@ import Logout from "./Logout.js"
 
 export default class {
   constructor({ document, onNavigate, store, localStorage }) {
-    this.document = document
-    this.onNavigate = onNavigate
-    this.store = store
-    const buttonNewBill = document.querySelector(`button[data-testid="btn-new-bill"]`)
-    if (buttonNewBill) buttonNewBill.addEventListener('click', this.handleClickNewBill)
-    const iconEye = document.querySelectorAll(`div[data-testid="icon-eye"]`)
+    this.document = document;
+    this.onNavigate = onNavigate;
+    this.store = store;
+    const buttonNewBill = document.querySelector(`button[data-testid="btn-new-bill"]`);
+    if (buttonNewBill) buttonNewBill.addEventListener('click', this.handleClickNewBill);
+    const iconEye = document.querySelectorAll(`div[data-testid="icon-eye"]`);
     if (iconEye) iconEye.forEach(icon => {
       icon.addEventListener('click', (e) => this.handleClickIconEye(icon))
-    })
+    });
     new Logout({ document, localStorage, onNavigate })
   }
 
@@ -34,6 +34,7 @@ export default class {
       .bills()
       .list()
       .then(snapshot => {
+        console.log(snapshot)
         const bills = snapshot
           .map(doc => {
             try {

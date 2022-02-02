@@ -1,3 +1,6 @@
+import store from "../__mocks__/store.js";
+
+
 export default {
   get: () => {
     return Promise.resolve({
@@ -62,5 +65,15 @@ export default {
         "fileUrl": "https://test.storage.tld/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=4df6ed2c-12c8-42a2-b013-346c1346f732"
       }]
     })
-  }
+  },
+  // ajout de la méthode post pour l'envoie des notes de frais
+  post: async (newBill) => {
+    const bills = await store.get();
+    return Promise.resolve({
+      data: [
+        ...bills.data,
+        newBill
+      ],
+    });
+  },
 }

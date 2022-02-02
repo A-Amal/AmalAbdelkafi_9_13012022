@@ -11,7 +11,7 @@ export default (height) => {
     if (user && user.type === 'Employee') {
       return (
         `
-        <div class='vertical-navbar' style='height: ${height}vh;'>
+        <div class='vertical-navbar' data-testid="vertical-navbar" style='height: ${height}vh;'>
           <div class='layout-title'> Billed </div>
           <div id='layout-icon1' data-testid="icon-window">
             ${WindowIcon}
@@ -22,7 +22,7 @@ export default (height) => {
           <div id='layout-disconnect'>
             ${DisconnectIcon}
           </div>
-      </div>
+        </div>
         `
       ) 
     } else {
@@ -30,10 +30,10 @@ export default (height) => {
         `
         <div class='vertical-navbar' style='height: ${height}vh;'>
           <div class='layout-title'> Billed </div>
-            <div id='layout-disconnect' data-testid='layout-disconnect'>
-              ${DisconnectIcon}
-            </div>
+          <div id='layout-disconnect' data-testid='layout-disconnect'>
+            ${DisconnectIcon}
           </div>
+        </div>
         `
       )
     }
