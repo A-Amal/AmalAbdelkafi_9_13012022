@@ -10,7 +10,7 @@ import store from "../__mocks__/store.js";
 const onNavigate = (pathname) => {
   document.body.innerHTML = ROUTES({ pathname });
 };
-//On indique que l'utilisateur est un Employee
+//We indicate that the user is an Employee
 Object.defineProperty(window, "localStorage", { value: localStorageMock });
 window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
 
@@ -51,6 +51,23 @@ describe("Given I am connected as an employee", () => {
       expect(screen.getAllByText('Equipement et matériel')).toBeTruthy()
       expect(screen.getAllByText('Fournitures de bureau')).toBeTruthy()
     });
+    test('Then i am on newBillPage and i submit the bill but the datefield is not defined an error is displayed',()=>{
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        tore: null,
+        localStorage: window.localStorage
+      })
+      const handleChangeFile = jest.fn(() => newBill.handleChangeFile);
+      const file = screen.getByTestId("file");
+      file.addEventListener("change", handleChangeFile);
+      fireEvent.click(getByRole(document.body,'btn'))
+
+      expect(newBill).toBe(true)
+
+
+    })
     // test of the handleSubmit function (allows the expense report form to be sent)
     test("Then the submit function handleSubmit should be called", () => {
       const html = NewBillUI();
@@ -68,7 +85,7 @@ describe("Given I am connected as an employee", () => {
       expect(handleSubmit).toBeCalled();
     });
   });
-  /* on vérifie ce qu il se passe en cas d'import de document conforme */
+  /* import of compliant document (PNG, JPEG, JPG)*/
   describe("When i choose the good format file ", () => {
     test("then the file is upload", async () => {
       const html = NewBillUI();
@@ -85,7 +102,7 @@ describe("Given I am connected as an employee", () => {
       expect(inputFile.files[0].name).toBe("myProof.png");
     });
   });
-  /* on vérifie que le message d'erreur s'affiche bien en cas d'import de document non conforme */
+  /* import of non-compliant document (txt, pdf) */
   describe("When i choose a file that does not match the supported formats ", () => {
     test("Then a error message should be display", async () => {
       const html = NewBillUI();
@@ -102,7 +119,7 @@ describe("Given I am connected as an employee", () => {
       fireEvent.change(file, {
         target: {
           files: [
-            new File(["fichier"], "fichier.txt", { type: "texte/txt" }),
+            new File(["fiche"], "fiche.txt", { type: "texte/txt" }),
           ],
         },
       });
@@ -112,7 +129,7 @@ describe("Given I am connected as an employee", () => {
     });
   });
   describe("When all is valid on NewBill", () => {
-    // on test qu'on retourne bien sur la page bills après l'envoie d'un formulaire valide
+    // we test that we return to the bills page after sending a valid form
     test("then after the bill was created, we should be redirected to Bills page", async () => {
       const html = NewBillUI();
       document.body.innerHTML = html;
@@ -198,21 +215,21 @@ describe("Given, i am connected as Employee", () => {
 
 
     /* erreur 404 */
-    test("Then it return error 404 ", async () => {
+    /*test("Then it return error 404 ", async () => {
       await store.post(() => Promise.reject(new Error("Erreur 404")));
       const html = BillsUI({ error: "Erreur 404" });
       document.body.innerHTML = html;
       const errorMessage = screen.getByText(/Erreur 404/);
       expect(errorMessage).toBeTruthy();
-    });
+    });*/
 
     /* erreur 500 */
-    test("Then it return error 500", async () => {
+   /* test("Then it return error 500", async () => {
       await store.post(() => Promise.reject(new Error("Erreur 404")));
       const html = BillsUI({ error: "Erreur 500" });
       document.body.innerHTML = html;
       const errorMessage = screen.getByText(/Erreur 500/);
       expect(errorMessage).toBeTruthy();
-    });
+    });*/
   });
 });

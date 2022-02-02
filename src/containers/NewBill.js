@@ -3,7 +3,7 @@ import Logout from "./Logout.js"
 
 export default class NewBill {
   constructor({ document, onNavigate, store, localStorage }) {
-    this.document = document
+    this.document = document;
     this.onNavigate = onNavigate
     this.store = store
     const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
@@ -21,12 +21,12 @@ export default class NewBill {
     const filePath = e.target.value.split(/\\/g)
     
     const fileName = filePath[filePath.length-1]
-    // message d'erreur a afficher
+    // error message to display
     let errorMessage = document.querySelector(".error_message");
     let buttonValidateNoteFrais= document.querySelector("#btn-send-bill");
-    // formats des documents autorisés
+    // authorized document formats
     const formatDocument = ["jpg", "jpeg", "png"];
-    let formatOfThisDoc = file.name.split(".").pop(); // exemple : format odt
+    let formatOfThisDoc = file.name.split(".").pop();
     const isValidFormat = formatDocument.includes(formatOfThisDoc);
   
     const formData = new FormData()
