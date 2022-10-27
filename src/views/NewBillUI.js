@@ -57,7 +57,7 @@ export default () => {
                     <label for="file" class="bold-label">Justificatif</label>
                     <input required type="file" class="form-control blue-border" data-testid="file" />
                     <div class="error_message error_image-format" data-testid="error-img">
-                      <p>Le format du document doit être en jpg, jpeg ou png.</p>
+                      <p class= "message" hidden id ="message">Le format du document doit être en jpg, jpeg ou png.</p>
                     </div>
                   </div>
                 </div>
@@ -75,3 +75,7 @@ export default () => {
     </div>
   `)
 }
+
+
+//ajout de accept="image/jpeg etc, ce qui permet de ne pas proposer d'autres extensions
+//ajout d'une balise "p" pour mettre le message d'erreur de format. En propriété hidden
