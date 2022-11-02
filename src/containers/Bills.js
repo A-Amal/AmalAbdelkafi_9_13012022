@@ -30,6 +30,7 @@ export default class {
 
   getBills = () => {//recupére les infos du store
     if (this.store) {
+      console.log(this.store)
       return this.store
           .bills()
           .list()

@@ -1,22 +1,19 @@
-import {fireEvent, screen} from "@testing-library/dom";
-import BillsUI from "../views/BillsUI.js"
-import {bills} from "../fixtures/bills.js"
-import {localStorageMock} from "../__mocks__/localStorage.js";
-import mockStore from "../__mocks__/store";
+
+/**
+ * @jest-environment jsdom
+ */
+import { screen, waitFor, fireEvent } from "@testing-library/dom";
+import BillsUI from "../views/BillsUI.js";
+import { bills } from "../fixtures/bills.js";
+import {  ROUTES, ROUTES_PATH } from "../constants/routes.js";
+import { localStorageMock } from "../__mocks__/localStorage.js";
 import Bills from "../containers/Bills.js";
-import {ROUTES, ROUTES_PATH} from "../constants/routes.js";
-import Router from '../app/Router.js'
+import mockStore from "../__mocks__/store";
 
+import router from "../app/Router.js";
 
-import userEvent from "@testing-library/user-event";
-import store from "../__mocks__/store.js";
+jest.mock("../app/Store", () => mockStore)
 
-const onNavigate = (pathname) => {
-  document.body.innerHTML = ROUTES({ pathname });
-};
-//On indique que l'utilisateur est un Employee
-Object.defineProperty(window, "localStorage", { value: localStorageMock });
-window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
 
 // views/Bills component: increase the coverage rate to 100%
 // test of the loading of the bills page
@@ -43,16 +40,24 @@ describe("When I am on Bill page but error message", () => {
  * Menu icon highlighted
  */
 describe("Given I am connected as an employee, when I am on Bills Page", () => {
-  test("Then bill icon in vertical layout should be highlighted", () => {
-    // Sim global environement
-    store.bills = () => {
-      return ({bills, get: jest.fn().mockResolvedValue});
-    };
-    Object.defineProperty(window, 'localStorage', { value: localStorageMock }); // mock localStorage
-    window.localStorage.setItem('user', JSON.stringify({type: 'Employee'})); // Set user as Employee in localStorage
-    Object.defineProperty(window, "location", { value: { hash: ROUTES_PATH['Bills'] } }); // Set location
-    document.body.innerHTML = `<div id="root"></div>`
-    Router();
+  test("Then bill icon in vertical layout should be highlighted", async () => {
+
+    Object.defineProperty(window, "localStorage", {
+      value: localStorageMock,
+    });
+    window.localStorage.setItem(
+        "user",
+        JSON.stringify({
+          type: "Employee",
+        })
+    );
+    const root = document.createElement("div");
+    root.setAttribute("id", "root");
+    document.body.append(root);
+    router();
+    window.onNavigate(ROUTES_PATH.Bills);
+    await waitFor(() => screen.getByTestId("icon-window"));
+    const windowIcon = screen.getByTestId("icon-window");
     expect(screen.getByTestId('icon-window').classList.contains('active-icon')).toBe(true)
 
 
@@ -73,9 +78,13 @@ describe("Given I am connected as an employee, when I am on Bills Page", () => {
 
 // container/Bills component:
 describe("When I click on the new bill button", () => {
+  //test of the handleClickNewBill function (allows the display of the expense report form "note de frais")
   test("Then the click function handleClickNewBill should be called", () => {
-    // test de la fonction handleClickNewBill (permet l'affichage du  formulaire de note de frais)
+    // Sim global environement
     document.body.innerHTML = BillsUI({data: bills});
+    const onNavigate = (pathname) => {
+      document.body.innerHTML = ROUTES({ pathname })
+    }
     const newBill = new Bills({
       document,
       onNavigate,
@@ -85,30 +94,48 @@ describe("When I click on the new bill button", () => {
     const handleClickNewBill = jest.fn(newBill.handleClickNewBill);
     const btnNewBill = screen.getByTestId("btn-new-bill");
     btnNewBill.addEventListener("click", handleClickNewBill);
-    userEvent.click(btnNewBill);
+    fireEvent.click(btnNewBill);
     expect(handleClickNewBill).toBeCalled();
   });
-  test("Then newbill appears", () => { // Vérifie qu'on arrive bien sur la page NewBill
+  //Check that we arrive on the NewBill page
+  test("Then newbill appears", () => {
+    // Sim global environement
     document.body.innerHTML = BillsUI({data: bills});
-    const newBill = new Bills({
+    //J'intègre le chemin d'accès
+    const onNavigate = (pathname) => {
+      document.body.innerHTML = ROUTES({ pathname })
+    }
+    const billsPage = new Bills({
       document,
       onNavigate,
       store: null,
-      localStorage: window.localStorage,
-    });
-    const handleClickNewBill = jest.fn(newBill.handleClickNewBill);
-    const btnNewBill = screen.getByTestId("btn-new-bill");
-    btnNewBill.addEventListener("click", handleClickNewBill);
-    userEvent.click(btnNewBill);
-    expect(handleClickNewBill).toBeCalled();
+      bills: bills,
+      localStorage: window.localStorage
+    })
+    //création constante pour la fonction qui appel la fonction a tester
+    const OpenNewBill = jest.fn(billsPage.handleClickNewBill);//l20 bills.js
+    const btnNewBill = screen.getByTestId("btn-new-bill")//cible le btn nouvelle note de frais
+    btnNewBill.addEventListener("click", OpenNewBill)//écoute évènement
+    fireEvent.click(btnNewBill)//simule évènement au click
+    // on vérifie que la fonction est appelée et que la page souhaitée s'affiche
+    expect(OpenNewBill).toHaveBeenCalled()//je m'attends à ce que la page nouvelle note de frais se charge
     expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()//la nouvelle note de frais apparait avec le titre envoyer une note de frais
   })
 });
 //test handleClickIconEye ligne 14 containers/Bills.js
 describe("When I click on the eye icon", () => {
   test("Then a modal should be open", () => {
+    Object.defineProperty(window, localStorage, { value: localStorageMock });//simule des données dans le localstorage
+    window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));//on simule en utilisateur connécter de type employé
+
     document.body.innerHTML = BillsUI({data: bills})
-    $.fn.modal = jest.fn()// Prevent jQuery error
+
+    const onNavigate = (pathname) => {//navigation vers la route bills
+      document.body.innerHTML = ROUTES({ pathname });
+    };
+    //MOCK de la modale
+    $.fn.modal = jest.fn();//affichage de la modale, Prevent jQuery error
+
     let billsList = new Bills({
       document,
       onNavigate,
@@ -122,15 +149,16 @@ describe("When I click on the eye icon", () => {
     fireEvent.click(eye);
     expect(handleClickIconEye).toHaveBeenCalled();
     expect($.fn.modal).toHaveBeenCalled();
-
     expect(screen.getByTestId('modaleFile')).toBeTruthy()
 
   });
 
 });
 // test d'integration get bill
-/*describe("When I get bills", () => {//Quand je demande de récupérer des factures
-  test("Then it should render bills", async () => {//Ensuite, il devrait afficher les factures
+describe("When I get bills", () => {//Quand je demande de récupérer des factures
+  test("Then it should render bills", async () => {
+    jest.mock("../app/Store", () => mockStore)
+    //Ensuite, il devrait afficher les factures
     const bills = new Bills({//récupération des factures dans le store
       document,
       onNavigate,
@@ -140,22 +168,9 @@ describe("When I click on the eye icon", () => {
     const getBills = jest.fn( bills.getBills);//simulation du click
     const value = await getBills();//vérification
     expect(getBills).toHaveBeenCalled();//ON TEST SI LA METHODE EST APPELEE
-    console.log(value)
     expect(value.length).toBe(4);//test si la longeur du tableau est a 4 du store.js
   });
-});*/
-
-describe("When I navigate to Bills page", () => {
-  test("fetches bills from mock API GET", async () => {
-    const getSpy = jest.spyOn(mockStore, "bills")
-    const bills =  mockStore.bills()
-    expect(getSpy).toHaveBeenCalledTimes(1)
-    const listSpy = jest.spyOn(bills, "list")
-    const list = await bills.list()
-    expect(listSpy).toHaveBeenCalledTimes(1)
-    expect(list.length).toBe(4)
-  })
-})
+});
 
 
 /**
@@ -183,4 +198,3 @@ describe("When I navigate to Bills Page", () => {
     expect(message).toBeTruthy()
   })
 })
-
